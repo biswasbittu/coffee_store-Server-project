@@ -11,8 +11,8 @@ app.use(express.json());
 
 
 
-const user=(process.env.DB_USER);
-const pwd=(process.env.DB_PWD);
+const user = (process.env.DB_USER);
+const pwd = (process.env.DB_PWD);
 const uri = `mongodb+srv://${user}:${pwd}@cluster0.bod8guw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 
@@ -31,6 +31,22 @@ async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
+
+        //   send data from clint side to Database
+        const database = client.db("CoffeeDB")
+        const coffeeCollection=database.collection("coffee");
+
+
+        app.post('/coffee', async (req, res) => {
+            const newCoffee = req.body;
+            const result = await coffeeCollection.insertOne(newCoffee);
+            res.send(result)
+
+        })
+
+
+
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
