@@ -1,13 +1,23 @@
 const express = require('express');
 const cors = require('cors');
+
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors());
-app.use(express.json());
+const corsOptions = {
+    origin: '*', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+// app.options('*', cors())
+// app.use(cors(corsOptions));
+app.use(cors(corsOptions))
+app.use(express.json())
+// app.use(express.json());
 
 
 
@@ -37,12 +47,12 @@ async function run() {
         // const coffeeCollection=database.collection("coffee");
         const coffeeCollection = client.db("CoffeeDB").collection("coffee");
 
-         app.get('/coffee', async(req,res)=>{
-             const cursor = coffeeCollection.find();
-             const result = await cursor.toArray();
-             res.send(result);
+        app.get('/coffee', async (req, res) => {
+            const cursor = coffeeCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
 
-         })
+        })
 
         app.post('/coffee', async (req, res) => {
             const newCoffee = req.body;
@@ -52,12 +62,15 @@ async function run() {
         })
 
 
-        app.delete('/coffee/:id', async(req,res)=>{
-            const id=req.params.id;
-            const quary ={_id:new ObjectId(id)}
+        app.delete('/coffee/:id', async (req, res) => {
+            const id = req.params.id;
+            const quary = { _id: new ObjectId(id) };
             const result = await coffeeCollection.deleteOne(quary);
-            res.send(result)
+            console.log(result);
+            res.send(result);
+
         })
+
 
 
 
