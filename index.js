@@ -8,7 +8,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 const corsOptions = {
-    origin: '*', 
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 };
@@ -54,6 +54,35 @@ async function run() {
 
         })
 
+        // app.get("/coffee/:id", async(req,res)=>{
+        //     const id= req.params.id;
+        //     const quary={_id:new ObjectId(id)};
+        //     const result = await coffeeCollection.findOne(quary);
+        //     res.send(result)
+
+        // })
+        app.get('/coffee/:id', async (req, res) => {
+            const id = req.params.id;
+            // Validate the ID
+            if (!ObjectId.isValid(id) || id.length !== 24) {
+                return res.status(400).send({ error: 'Invalid ID format' });
+            }
+
+            try {
+                const query = { _id: new ObjectId(id) };
+                const result = await coffeeCollection.findOne(query);
+
+                if (!result) {
+                    return res.status(404).send({ error: 'Coffee not found' });
+                }
+
+                res.send(result);
+            } catch (error) {
+                console.error('Error fetching coffee:', error);
+                res.status(500).send({ error: 'Internal Server Error' });
+            }
+        });
+
         app.post('/coffee', async (req, res) => {
             const newCoffee = req.body;
             const result = await coffeeCollection.insertOne(newCoffee);
@@ -66,7 +95,7 @@ async function run() {
             const id = req.params.id;
             const quary = { _id: new ObjectId(id) };
             const result = await coffeeCollection.deleteOne(quary);
-            console.log(result);
+            // console.log(result);
             res.send(result);
 
         })
