@@ -54,34 +54,35 @@ async function run() {
 
         })
 
-        // app.get("/coffee/:id", async(req,res)=>{
-        //     const id= req.params.id;
-        //     const quary={_id:new ObjectId(id)};
-        //     const result = await coffeeCollection.findOne(quary);
-        //     res.send(result)
-
-        // })
-        app.get('/coffee/:id', async (req, res) => {
+        app.get("/coffee/:id", async (req, res) => {
             const id = req.params.id;
-            // Validate the ID
-            if (!ObjectId.isValid(id) || id.length !== 24) {
-                return res.status(400).send({ error: 'Invalid ID format' });
-            }
+            const quary = { _id: new ObjectId(id) };
+            const result = await coffeeCollection.findOne(quary);
+            res.send(result)
 
-            try {
-                const query = { _id: new ObjectId(id) };
-                const result = await coffeeCollection.findOne(query);
+        })
+        // app.get('/coffee/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     // console.log(`Received ID: ${id}`);
+        //     // Validate the ID
+        //     if (!ObjectId.isValid(id) || id.length !== 24) {
+        //         return res.status(400).send({ error: 'Invalid ID format-xx' });
+        //     }
 
-                if (!result) {
-                    return res.status(404).send({ error: 'Coffee not found' });
-                }
+        //     try {
+        //         const query = { _id: new ObjectId(id) };
+        //         const result = await coffeeCollection.findOne(query);
 
-                res.send(result);
-            } catch (error) {
-                console.error('Error fetching coffee:', error);
-                res.status(500).send({ error: 'Internal Server Error' });
-            }
-        });
+        //         if (!result) {
+        //             return res.status(404).send({ error: 'Coffee not found' });
+        //         }
+
+        //         res.send(result);
+        //     } catch (error) {
+        //         console.error('Error fetching coffee:', error);
+        //         res.status(500).send({ error: 'Internal Server Error' });
+        //     }
+        // });
 
         app.post('/coffee', async (req, res) => {
             const newCoffee = req.body;
@@ -90,6 +91,31 @@ async function run() {
 
         })
 
+
+
+
+        // Update to Db
+        app.put(`/coffee/:id`, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedCoffee = req.body;
+            const coffee = {
+                $set: {
+                    name: updatedCoffee.name,
+                    quentity: updatedCoffee.quentity,
+                    supplier: updatedCoffee.supplier,
+                    test: updatedCoffee.test,
+                    category: updatedCoffee.category,
+                    details: updatedCoffee.details,
+                    photo: updatedCoffee.photo,
+
+                },
+            };
+            const result = await coffeeCollection.updateOne(filter, coffee, options);
+            res.send(result)
+
+        })
 
         app.delete('/coffee/:id', async (req, res) => {
             const id = req.params.id;
